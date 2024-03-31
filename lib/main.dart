@@ -1,8 +1,6 @@
-import 'dart:js';
 
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -85,23 +83,6 @@ class MyHomePageState extends State<StatefulWidget1> {
 
 
 class MyHomePage extends StatelessWidget {
-  // const MyHomePage({
-  //   super.key,
-  //   required this.child,
-  // });
-  // final Widget child;
-
-  // static MyHomePageState of(BuildContext context, {bool rebuild = true}) {
-  //   return rebuild
-  //       ? context.dependOnInheritedWidgetOfExactType<_InheritedState>()!.data
-  //       : (context
-  //       .getElementForInheritedWidgetOfExactType<_InheritedState>()!
-  //       .widget as _InheritedState)
-  //       .data;
-  // }
-  // @override
-  // State<StatefulWidget1> createState() => MyHomePageState();
-
   @override
   Widget build(BuildContext context) {
     var selectedIndex = 0;
