@@ -13,38 +13,104 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MyInheritedStateWidget(
+    return StatefulWidget1(
       child: MaterialApp(
-        home: _MyHomePageState
-      )
-    )
+        home: MyHomePage(),
+      ),
+    );
   }
 }
 
 class _InheritedState extends InheritedWidget {
   const _InheritedState({
-    required this.state,
-    required super.child
+    required this.data,
+    required super.child,
   });
 
-  final MyInheritedState state;
+  final MyHomePageState data;
 
   @override
   bool updateShouldNotify(covariant InheritedWidget oldWidget) => true;
 }
 
-class MyInheritedStateWidget extends StatefulWidget {
+class StatefulWidget1 extends StatefulWidget {
 
-  static MyInheritedState of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<_InheritedState>()!.state;
+  const StatefulWidget1({
+    super.key,
+    required this.child,
+  });
+
+  final Widget child;
+
+  static MyHomePageState of(BuildContext context, {bool rebuild = true}) {
+    return rebuild
+        ? context.dependOnInheritedWidgetOfExactType<_InheritedState>()!.data
+        : (context
+        .getElementForInheritedWidgetOfExactType<_InheritedState>()!
+        .widget as _InheritedState)
+        .data;
   }
   @override
-  State<MyInheritedState> createState() => _MyHomePageState();
+  State<StatefulWidget1> createState() => MyHomePageState();
 }
 
-class MyHomePage extends StatelessWidget {
+
+class MyHomePageState extends State<StatefulWidget1> {
+  var selectedIndex = 0;
+  var current = WordPair.random();
+
+  void getNext()  => setState(() {
+    current = WordPair.random();
+  });
+  var favorites = <WordPair>[];
+  void toggleFavorite() => setState(() {
+    if(favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+  });
+  void changePage(int value) => setState(() {
+    selectedIndex = value;
+  });
+
   @override
   Widget build(BuildContext context) {
+    // TODO: implement build
+    return _InheritedState(data: this, child: widget.child);
+  }
+
+}
+
+
+
+class MyHomePage extends StatelessWidget {
+  // const MyHomePage({
+  //   super.key,
+  //   required this.child,
+  // });
+  // final Widget child;
+
+  // static MyHomePageState of(BuildContext context, {bool rebuild = true}) {
+  //   return rebuild
+  //       ? context.dependOnInheritedWidgetOfExactType<_InheritedState>()!.data
+  //       : (context
+  //       .getElementForInheritedWidgetOfExactType<_InheritedState>()!
+  //       .widget as _InheritedState)
+  //       .data;
+  // }
+  // @override
+  // State<StatefulWidget1> createState() => MyHomePageState();
+
+  Widget build(BuildContext context) {
+    var selectedIndex = StatefulWidget1.of(context).selectedIndex;
+    Widget page;
+    switch (selectedIndex) {
+      case 0:
+        page = GeneratorPage();
+      case 1:
+        page = FavoritesPage();
+    }
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         body: Row(
@@ -52,7 +118,7 @@ class MyHomePage extends StatelessWidget {
             SafeArea(
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
-                destinations: [
+                destinations: const [
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Home'),
@@ -62,11 +128,9 @@ class MyHomePage extends StatelessWidget {
                     label: Text('Favorites'),
                   ),
                 ],
-                selectedIndex: selectedIndex,
+                selectedIndex: StatefulWidget1.of(context).selectedIndex,
                 onDestinationSelected: (value) {
-                  setState(() {
-                    selectedIndex = value;
-                  });
+                  StatefulWidget1.of(context).changePage(value);
                 },
               ),
             ),
@@ -84,50 +148,22 @@ class MyHomePage extends StatelessWidget {
 
 }
 
-class _MyHomePageState extends State<MyInheritedState> {
-  var selectedIndex = 0;
-  var current = WordPair.random()
 
-
-  @override
-  void setState(VoidCallback fn) {
-    void getNext() {
-      current = WordPair.random();
-    }
-
-    var favorites = <WordPair>[];
-
-    void toggleFavorite() {
-      if (favorites.contains(current)) {
-        favorites.remove(current);
-      } else {
-        favorites.add(current);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Widget page;
-    switch (selectedIndex) {
-      case 0:
-        page = GeneratorPage();
-      case 1:
-        page = FavoritesPage();
-      default:
-        throw UnimplementedError('no widget for $selectedIndex');
-    }
-
-
-  }
-}
 
 class GeneratorPage extends StatelessWidget {
+  const GeneratorPage({super.key});
+
   @override
   Widget build(BuildContext context) {
+    var pair = StatefulWidget1.of(context).current;
 
     IconData icon;
-    if (appState.favorites.contains(pair)) {
+    // if (appState.favorites.contains(pair)) {
+    //   icon = Icons.favorite;
+    // } else {
+    //   icon = Icons.favorite_border;
+    // }
+    if(StatefulWidget1.of(context).favorites.contains(pair)) {
       icon = Icons.favorite;
     } else {
       icon = Icons.favorite_border;
@@ -138,13 +174,13 @@ class GeneratorPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           BigCard(pair: pair),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               ElevatedButton.icon(
                 onPressed: () {
-                  appState.toggleFavorite();
+                  StatefulWidget1.of(context).toggleFavorite();
                 },
                 icon: Icon(icon),
                 label: Text('Like'),
@@ -152,7 +188,7 @@ class GeneratorPage extends StatelessWidget {
               SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
-                  appState.getNext();
+                  StatefulWidget1.of(context).getNext();
                 },
                 child: Text('Next'),
               ),
@@ -196,10 +232,10 @@ class BigCard extends StatelessWidget {
 class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+    // var appState = context.watch<MyAppState>();
 
-    if (appState.favorites.isEmpty) {
-      return Center(
+    if (StatefulWidget1.of(context).favorites.isEmpty) {
+      return const Center(
         child: Text('No favorites yet.'),
       );
     }
@@ -209,11 +245,11 @@ class FavoritesPage extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(20),
           child: Text('You have '
-              '${appState.favorites.length} favorites:'),
+              '${StatefulWidget1.of(context).favorites.length} favorites:'),
         ),
-        for (var pair in appState.favorites)
+        for (var pair in StatefulWidget1.of(context).favorites)
           ListTile(
-            leading: Icon(Icons.favorite),
+            leading: const Icon(Icons.favorite),
             title: Text(pair.asLowerCase),
           ),
       ],
