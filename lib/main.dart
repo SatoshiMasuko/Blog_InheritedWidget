@@ -102,15 +102,20 @@ class MyHomePage extends StatelessWidget {
   // @override
   // State<StatefulWidget1> createState() => MyHomePageState();
 
+  @override
   Widget build(BuildContext context) {
-    var selectedIndex = StatefulWidget1.of(context).selectedIndex;
+    var selectedIndex = 0;
+
     Widget page;
     switch (selectedIndex) {
       case 0:
         page = GeneratorPage();
       case 1:
         page = FavoritesPage();
+      default:
+        throw UnimplementedError('no widget for $selectedIndex');
     }
+
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         body: Row(
@@ -118,7 +123,7 @@ class MyHomePage extends StatelessWidget {
             SafeArea(
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
-                destinations: const [
+                destinations: [
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Home'),
@@ -128,7 +133,7 @@ class MyHomePage extends StatelessWidget {
                     label: Text('Favorites'),
                   ),
                 ],
-                selectedIndex: StatefulWidget1.of(context).selectedIndex,
+                selectedIndex: selectedIndex,
                 onDestinationSelected: (value) {
                   StatefulWidget1.of(context).changePage(value);
                 },
