@@ -3,7 +3,7 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StatefulWidget1(
+    return const MyStateWidget(
       child: MaterialApp(
         home: MyHomePage(),
       ),
@@ -31,9 +31,9 @@ class _InheritedState extends InheritedWidget {
   bool updateShouldNotify(covariant InheritedWidget oldWidget) => true;
 }
 
-class StatefulWidget1 extends StatefulWidget {
+class MyStateWidget extends StatefulWidget {
 
-  const StatefulWidget1({
+  const MyStateWidget({
     super.key,
     required this.child,
   });
@@ -49,11 +49,11 @@ class StatefulWidget1 extends StatefulWidget {
         .data;
   }
   @override
-  State<StatefulWidget1> createState() => MyHomePageState();
+  State<MyStateWidget> createState() => MyHomePageState();
 }
 
 
-class MyHomePageState extends State<StatefulWidget1> {
+class MyHomePageState extends State<MyStateWidget> {
   var selectedIndex = 0;
   var current = WordPair.random();
 
@@ -74,7 +74,6 @@ class MyHomePageState extends State<StatefulWidget1> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return _InheritedState(data: this, child: widget.child);
   }
 
@@ -83,6 +82,8 @@ class MyHomePageState extends State<StatefulWidget1> {
 
 
 class MyHomePage extends StatelessWidget {
+  const MyHomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     var selectedIndex = 0;
@@ -90,9 +91,9 @@ class MyHomePage extends StatelessWidget {
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
+        page = const GeneratorPage();
       case 1:
-        page = FavoritesPage();
+        page = const FavoritesPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -104,7 +105,7 @@ class MyHomePage extends StatelessWidget {
             SafeArea(
               child: NavigationRail(
                 extended: constraints.maxWidth >= 600,
-                destinations: [
+                destinations: const [
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Home'),
@@ -116,7 +117,7 @@ class MyHomePage extends StatelessWidget {
                 ],
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (value) {
-                  StatefulWidget1.of(context).changePage(value);
+                  MyStateWidget.of(context).changePage(value);
                 },
               ),
             ),
@@ -141,15 +142,10 @@ class GeneratorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var pair = StatefulWidget1.of(context).current;
+    var pair = MyStateWidget.of(context).current;
 
     IconData icon;
-    // if (appState.favorites.contains(pair)) {
-    //   icon = Icons.favorite;
-    // } else {
-    //   icon = Icons.favorite_border;
-    // }
-    if(StatefulWidget1.of(context).favorites.contains(pair)) {
+    if(MyStateWidget.of(context).favorites.contains(pair)) {
       icon = Icons.favorite;
     } else {
       icon = Icons.favorite_border;
@@ -166,17 +162,17 @@ class GeneratorPage extends StatelessWidget {
             children: [
               ElevatedButton.icon(
                 onPressed: () {
-                  StatefulWidget1.of(context).toggleFavorite();
+                  MyStateWidget.of(context).toggleFavorite();
                 },
                 icon: Icon(icon),
-                label: Text('Like'),
+                label: const Text('Like'),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
-                  StatefulWidget1.of(context).getNext();
+                  MyStateWidget.of(context).getNext();
                 },
-                child: Text('Next'),
+                child: const Text('Next'),
               ),
             ],
           ),
@@ -216,11 +212,13 @@ class BigCard extends StatelessWidget {
 }
 
 class FavoritesPage extends StatelessWidget {
+  const FavoritesPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     // var appState = context.watch<MyAppState>();
 
-    if (StatefulWidget1.of(context).favorites.isEmpty) {
+    if (MyStateWidget.of(context).favorites.isEmpty) {
       return const Center(
         child: Text('No favorites yet.'),
       );
@@ -231,9 +229,9 @@ class FavoritesPage extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(20),
           child: Text('You have '
-              '${StatefulWidget1.of(context).favorites.length} favorites:'),
+              '${MyStateWidget.of(context).favorites.length} favorites:'),
         ),
-        for (var pair in StatefulWidget1.of(context).favorites)
+        for (var pair in MyStateWidget.of(context).favorites)
           ListTile(
             leading: const Icon(Icons.favorite),
             title: Text(pair.asLowerCase),
